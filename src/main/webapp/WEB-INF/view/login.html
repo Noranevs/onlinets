@@ -31,9 +31,8 @@
       form.on('submit(login)', function (data) {
       var idcardno = $("#idcardno").val();
       var password = $("#password").val();
-      console.log(idcardno)
       $.ajax({
-        url: '/onlinets/user/login/' + idcardno + "/" + password,
+        url: '/onlinets/user-info/login/' + idcardno + "/" + password,
         type: 'GET',
         success: function (res) {
           if (res.code === 100) {

@@ -13,7 +13,7 @@ import lombok.experimental.Accessors;
  * </p>
  *
  * @author 金金金
- * @since 2020-09-16
+ * @since 2020-09-21
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -32,6 +32,8 @@ public class UserInfo implements Serializable {
     private String gender;
 
     private String password;
+
+    private String classname;
 
     private String phone;
 
@@ -79,6 +81,14 @@ public class UserInfo implements Serializable {
         this.password = password;
     }
 
+    public String getClassname() {
+        return classname;
+    }
+
+    public void setClassname(String classname) {
+        this.classname = classname;
+    }
+
     public String getPhone() {
         return phone;
     }
@@ -90,12 +100,13 @@ public class UserInfo implements Serializable {
     public UserInfo() {
     }
 
-    public UserInfo(Integer id, String name, String idcardno, String gender, String password, String phone) {
+    public UserInfo(Integer id, String name, String idcardno, String gender, String password, String classname, String phone) {
         this.id = id;
         this.name = name;
         this.idcardno = idcardno;
         this.gender = gender;
         this.password = password;
+        this.classname = classname;
         this.phone = phone;
     }
 
@@ -107,6 +118,7 @@ public class UserInfo implements Serializable {
                 ", idcardno='" + idcardno + '\'' +
                 ", gender='" + gender + '\'' +
                 ", password='" + password + '\'' +
+                ", classname='" + classname + '\'' +
                 ", phone='" + phone + '\'' +
                 '}';
     }

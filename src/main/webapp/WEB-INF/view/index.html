@@ -3,7 +3,7 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>用户中心</title>
+  <title>在线教学系统</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="keywords" content="fly,layui,前端社区">
   <meta name="description" content="Fly社区是模块化前端UI框架Layui的官网社区，致力于为web开发提供强劲动力">
@@ -15,7 +15,7 @@
 <div class="fly-header layui-bg-black">
   <div class="layui-container">
     <a class="fly-logo" href="/">
-      <img src="../../res/images/logo.png" alt="layui">
+      <img src="../../images/logo.png" alt="layui">
     </a>
     
     <ul class="layui-nav fly-nav-user">
@@ -29,7 +29,7 @@
           <dd><a href="../user/home.html"><i class="layui-icon" style="margin-left: 2px; font-size: 22px;">&#xe68e;</i>我的主页</a></dd>
           <dd><a href="../user/set.html"><i class="layui-icon">&#xe620;</i>账号管理</a></dd>
           <hr style="margin: 5px 0;">
-          <dd><a href="" style="text-align: center;">退出登录</a></dd>
+          <dd><a href="" style="text-align: center;" id="loginOut">退出登录</a></dd>
         </dl>
       </li>
     </ul>
@@ -41,7 +41,7 @@
     <li class="layui-nav-item layui-this">
       <a href="index.html">
         <i class="layui-icon">&#xe612;</i>
-        我的主页
+        我的课程
       </a>
     </li>
     <li class="layui-nav-item">
@@ -71,26 +71,20 @@
     -->
     <div class="layui-tab layui-tab-brief" lay-filter="user">
       <ul class="layui-tab-title" id="LAY_mine">
-        <li data-type="mine-jie" lay-id="index" class="layui-this">进行中课程（<span>4</span>）</li>
-        <li data-type="collection" data-url="/collection/find/" lay-id="collection">已结束课程（<span>5</span>）</li>
+        <li data-type="mine-jie" lay-id="index" class="layui-this">进行中课程</li>
+        <li data-type="collection" data-url="/collection/find/" lay-id="collection">已结束课程</li>
       </ul>
       <div class="layui-tab-content" style="padding: 20px 0;">
         <div class="layui-tab-item layui-show">
-          <ul class="mine-view jie-row">
-            <li>
-              <div style="width: 240px;height: 210px;background: #f2f2f2;border: #dbdbdb solid 1px">
-                <img src="../../images/course1.png" style="width: 240px;height: 120px">
-                <p style="font-size: 18px;margin: 5px">创业与就业指导</p><br>
-                <p style="font-size: 12px;margin-left: 5px;color: gray">陈光玖<br>西南财经大学天府学院<br>2017级计算机本科01班<br></p>
+              <div id="courselists" >
+
               </div>
-            </li>
-          </ul>
         </div>
         <div class="layui-tab-item">
           <ul class="mine-view jie-row">
             <li>
               <div style="width: 240px;height: 200px;background: #f2f2f2;border: #dbdbdb solid 1px">
-                <img src="../../images/course2.png" style="width: 240px;height: 120px">
+                <img src="../../images/course.png" style="width: 240px;height: 120px">
                 <p style="font-size: 18px;margin: 5px">当代世界经济与政治</p><br>
                 <p style="font-size: 12px;margin-left: 5px;color: gray">赵莎莎<br>西南财经大学天府学院<br></p>
               </div>
@@ -113,6 +107,7 @@
 </div>
 
 <script src="../../layui/layui.js"></script>
+<script src="/js/check_token.js"></script>
 <script>
   layui.use('element', function(){
     var $ = layui.jquery
@@ -142,6 +137,37 @@
     element.on('tab(test)', function(elem){
       location.hash = 'test='+ $(this).attr('lay-id');
     });
+    $(function () {
+      var token = getCookies("Authorization");
+      $.ajax({
+        type: 'GET',
+        url: "/onlinets/course-student/getCourses",
+        dataType: 'json',
+        async: false,
+        xhrFields: {withCredentials: true}, //开启请求头
+        headers: {Authorization: token},
+        success: function(result) {
+          console.log(result);
+          var courselist = result.info.courseList;
+          var len = result.info.length;
+          console.log(courselist);
+          console.log(len);
+          var str = "";//用来存储html内容
+            $.each(courselist, function (index,item){
+              str += "<div style=\"width: 240px;height: 220px;background: #f2f2f2;border: #dbdbdb solid 1px;float: left;margin-right: 15px\">" +
+                      "<img src=\"../../images/course.png\" style=\"width: 240px;height: 120px\">" +
+                      "<p style=\"font-size: 18px;margin-left: 5px;margin-top: 5px\">"+item.coursename+"</p><br>" +
+                      "<p style=\"font-size: 12px;margin-left: 5px ;color: gray\">"+item.teachername+"<br>西南财经大学天府学院<br>"+item.classname+"<br></p></div>"              ;
+            })
+
+            $("#courselists").append(str);
+            },
+        error: function(){
+          return;
+        },
+
+      });
+    })
 
   });
 </script>

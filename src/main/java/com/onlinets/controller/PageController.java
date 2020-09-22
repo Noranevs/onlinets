@@ -11,11 +11,24 @@ public class PageController {
     public String tologin(){
         return "login";
     }
-
     @RequestMapping(value = "/index")
     public String toindex(){
         return "index";
     }
 
+    @RequestMapping(value = "/courseindex")
+    public String tocourse(){
+        return "courseindex";
+    }
+
+    @RequestMapping(value = "/set")
+    public String toset(){
+        return "set";
+    }
+
+    @RequestMapping(value = "/homework")
+    public String tohomework(){
+        return "homework";
+    }
 }
 

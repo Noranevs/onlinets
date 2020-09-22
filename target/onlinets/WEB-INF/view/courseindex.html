@@ -1,0 +1,94 @@
+ 
+ 
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Fly Template v3.0，基于 layui 的极简社区页面模版</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="keywords" content="fly,layui,前端社区">
+  <meta name="description" content="Fly社区是模块化前端UI框架Layui的官网社区，致力于为web开发提供强劲动力">
+  <link rel="stylesheet" href="../../layui/css/layui.css">
+  <link rel="stylesheet" href="../../css/global.css">
+</head>
+<body>
+
+<div class="fly-header layui-bg-black">
+  <div class="layui-container">
+    <a class="fly-logo" href="/">
+      <img src="../../images/logo.png" alt="layui">
+    </a>
+    
+    <ul class="layui-nav fly-nav-user">
+      <!-- 登入后的状态 -->
+      <li class="layui-nav-item">
+        <a class="fly-nav-avatar" href="javascript:;">
+          <cite class="layui-hide-xs"></cite>
+          <img src="../../images/head.png">
+        </a>
+        <dl class="layui-nav-child">
+        <dd><a href="../user/home.html"><i class="layui-icon" style="margin-left: 2px; font-size: 22px;">&#xe68e;</i>我的主页</a></dd>
+        <dd><a href="../user/set.html"><i class="layui-icon">&#xe620;</i>账号管理</a></dd>
+        <hr style="margin: 5px 0;">
+        <dd><a href="" style="text-align: center;">退出登录</a></dd>
+      </dl>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<div class="layui-hide-xs">
+  <div class="fly-panel fly-column">
+    <div class="layui-container">
+      <ul class="layui-clear">
+        <li class="layui-this"><a href="/to/courseindex">首页</a></li>
+        <li class="layui-hide-xs"><a href="/">课件</a></li>
+        <li class="layui-hide-xs"><a href="/">资料</a></li>
+        <li class="layui-hide-xs"><a href=/to/homework">作业</a></li>
+        <li class="layui-hide-xs"><a href="/">考试</a></li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="layui-container">
+  <div class="layui-row layui-col-space15" style="background: #FFFFFF">
+        <div class="detail-about">
+          <p style="font-size: 18px" id="coursename"></p>
+        </div>
+        <div>
+          <div id="Content">
+
+          </div>
+        </div>
+  </div>
+</div>
+
+<div class="fly-footer">
+  <p><a href="http://fly.layui.com/" target="_blank">校友圈</a> 2017 &copy; <a href="http://www.layui.com/" target="_blank">layui.com 出品</a></p>
+  <p>
+    <a href="http://fly.layui.com/jie/3147/" target="_blank">付费计划</a>
+    <a href="http://www.layui.com/template/fly/" target="_blank">获取Fly社区模版</a>
+    <a href="http://fly.layui.com/jie/2461/" target="_blank">微信公众号</a>
+  </p>
+</div>
+
+<script src="../../layui/layui.js"></script>
+<script>
+  layui.use(['layer', 'jquery'], function () {
+    var layer = layui.layer;
+    var $ = layui.$;
+    $(function () {
+      var url = location.search;//获取url中"?"符后的字串
+      if (url.indexOf("?") != -1) {    //判断是否有参数
+        var str = url.substr(1);//从第一个字符开始 因为第0个是?号 获取所有除问号的所有符串
+        strs = str.split("=");   //用等号进行分隔 （因为知道只有一个参数 所以直接用等号进分隔 如果有多个参数 要用&号分隔 再用等号进行分隔）
+        var coursename = decodeURIComponent(strs);
+        $("#coursename").append(coursename);    //直接弹出第一个参数 （如果有多个参数 还要进行循环的）
+      }
+    })
+  })
+</script>
+
+</body>
+</html>

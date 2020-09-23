@@ -14,6 +14,7 @@ import io.jsonwebtoken.Claims;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -42,32 +43,19 @@ public class CourseInfoController {
     private CourseStudentService studentService;
 
     /*
-    * 查询课程详情
+    * 通过课程id查询课程详情
     * */
-    @RequestMapping(value = "/getCoursesInfo")
+    @RequestMapping(value = "/getCoursesInfo/{courseid}")
     @ResponseBody
-    public JsonMessage getCoursesInfo(HttpServletRequest request){
-        String authorization = request.getHeader("Authorization");//获取token头部
-        Claims claims = TokenUtil.parseToken(authorization);
-        String id = claims.getId();
-        QueryWrapper<CourseStudent> wrapper = new QueryWrapper<>();
-        wrapper.eq("id",id);//获取课程id
-        CourseStudent one = studentService.getOne(wrapper);
-        Integer userId = one.getClassid();
-        logger.info("用户ID："+userId);
-        if (userId != null && !userId.equals("")) {
-            QueryWrapper<CourseInfo> courseQueryWrapper =new QueryWrapper<>();
-            courseQueryWrapper.eq("user_id",userId);
-            List<CourseInfo> courseList = service.list(courseQueryWrapper);
-            logger.info("我的课程：" + courseList.toString());
-            if ( courseList != null) {
-                return JsonMessage.success().add("courseList", courseList);
-            }else {
-                logger.info("查询失败："+courseList);
-                return JsonMessage.error("查询失败!");
-            }
+    public JsonMessage getCoursesInfo(@PathVariable("courseid") String courseid, HttpServletRequest request){
+        QueryWrapper<CourseInfo> wrapper = new QueryWrapper<>();
+        wrapper.eq("id",courseid);
+        CourseInfo one = service.getOne(wrapper);
+        if (one!=null) {
+            logger.info("查到的课程详情："+one);
+            return JsonMessage.success().add("courseInfo",one);
         }else {
-            logger.info("未获取用户Id:"+userId);
+            logger.info("未查到课程详情:"+one);
             return JsonMessage.error("查询失败");
         }
     }

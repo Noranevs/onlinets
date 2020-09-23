@@ -55,11 +55,13 @@
 <div class="layui-container">
   <div class="layui-row layui-col-space15" style="background: #FFFFFF">
         <div class="detail-about">
-          <p style="font-size: 18px">计算机综合应用与实训</p>
+          <p style="font-size: 18px"></p>
         </div>
         <div>
           <div id="Content">
+              <div id="homeworks">
 
+              </div>
           </div>
         </div>
   </div>
@@ -75,7 +77,67 @@
 </div>
 
 <script src="../../layui/layui.js"></script>
+<script src="/js/check_token.js"></script>
+<script>
+  layui.use('element', function(){
+    var $ = layui.jquery
+            ,element = layui.element; //Tab的切换功能，切换事件监听等，需要依赖element模块
+    //右上角鼠标移入展开菜单
+    element.on('nav(demo)', function(elem){
+      //console.log(elem)
+      layer.msg(elem.text());
+    });
+    //触发事件
+    var active = {
+      tabChange: function(){
+        //切换到指定Tab项
+        element.tabChange('demo', '22'); //切换到：用户管理
+      }
+    };
 
+    $('.site-demo-active').on('click', function(){
+      var othis = $(this), type = othis.data('type');
+      active[type] ? active[type].call(this, othis) : '';
+    });
+
+    //Hash地址的定位
+    var layid = location.hash.replace(/^#test=/, '');
+    element.tabChange('test', layid);
+
+    element.on('tab(test)', function(elem){
+      location.hash = 'test='+ $(this).attr('lay-id');
+    });
+    $(function () {
+      var token = getCookies("Authorization");
+      $.ajax({
+        type: 'GET',
+        url: "/onlinets/homework/getHomeworks",
+        dataType: 'json',
+        async: false,
+        xhrFields: {withCredentials: true}, //开启请求头
+        headers: {Authorization: token},
+        success: function(result) {
+          console.log(result);
+          var homeworkList = result.info.homeworkList;
+          var len = result.info.length;
+          console.log(homeworkList);
+          var str = "";//用来存储html内容
+          $.each(homeworkList, function (index,item){
+            str += "<div style=\"width: 240px;height: 220px;background: #f2f2f2;border: #dbdbdb solid 1px;float: left;margin-right: 15px\">" +
+                    "<img src=\"../../images/course.png\" style=\"width: 240px;height: 120px\">" +
+                    "<p style=\"font-size: 18px;margin-left: 5px;margin-top: 5px\">"+item.coursename+"</p><br>" +
+                    "<p style=\"font-size: 12px;margin-left: 5px ;color: gray\">"+item.teachername+"<br>西南财经大学天府学院<br>"+item.classname+"<br></p></div>"              ;
+          });
+          $("#courselists").append(str);
+        },
+        error: function(){
+          return;
+        },
+
+      });
+    })
+  });
+</script>
 
 </body>
 </html>

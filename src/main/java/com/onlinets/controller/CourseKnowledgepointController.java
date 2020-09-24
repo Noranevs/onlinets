@@ -45,32 +45,54 @@ public class CourseKnowledgepointController {
     private CourseInfoService courseInfoService;
 
     /*
-     * 通过课程id查询知识点的父节点
+     * 查询知识点的父节点
      * */
-    @RequestMapping(value = "/getParent/{coursename}",produces = {"application/json;charset=UTF-8"})
+    @RequestMapping(value = "/getParent",produces = {"application/json;charset=UTF-8"})
     @ResponseBody
-    public JsonMessage getParent(@PathVariable("coursename") String coursename,HttpServletRequest request){
-        QueryWrapper<CourseKnowledgepoint> wrapper = new QueryWrapper<>();
-        wrapper.eq("coursename",coursename);
-        CourseKnowledgepoint ckp = courseKnowledgepointService.getOne(wrapper);
-        Integer classid = ckp.getCourseid();
-        logger.info("课程ID："+classid);
-        if (classid != null && !classid.equals("")) {
+    public JsonMessage getParent(){
             QueryWrapper<CourseKnowledgepoint> ckpQueryWrapper = new QueryWrapper<>();
-            wrapper.eq("parentid",0);
+            ckpQueryWrapper.isNull("parentid");
             List<CourseKnowledgepoint> parentList = courseKnowledgepointService.list(ckpQueryWrapper);
             if (parentList!=null){
                 logger.info("查询成功，父节点有："+parentList);
-                return JsonMessage.success().add("pointList",parentList);
+                return JsonMessage.success().add("parentList",parentList);
             }else {
                 return JsonMessage.error("查询失败");
             }
+    }
+
+    /*
+     * 查询知识点的子节点
+     * */
+    @RequestMapping(value = "/getChild",produces = {"application/json;charset=UTF-8"})
+    @ResponseBody
+    public JsonMessage getChild(){
+        QueryWrapper<CourseKnowledgepoint> ckpQueryWrapper = new QueryWrapper<>();
+        ckpQueryWrapper.isNotNull("parentid");
+        List<CourseKnowledgepoint> childList = courseKnowledgepointService.list(ckpQueryWrapper);
+        if (childList!=null){
+            logger.info("查询成功，父节点有："+childList);
+            return JsonMessage.success().add("childList",childList);
         }else {
-            logger.info("未获取课程id："+classid);
             return JsonMessage.error("查询失败");
         }
     }
 
-
+    /*
+     * 通过课程id查询知识点的父节点
+     * */
+    @RequestMapping(value = "/getParent/{coursename}",produces = {"application/json;charset=UTF-8"})
+    @ResponseBody
+    public JsonMessage getParent(@PathVariable("coursename") String coursename){
+        QueryWrapper<CourseKnowledgepoint> ckpQueryWrapper = new QueryWrapper<>();
+        ckpQueryWrapper.eq("coursename",coursename).like("parentid",null);
+        List<CourseKnowledgepoint> parentList = courseKnowledgepointService.list(ckpQueryWrapper);
+        if (parentList!=null){
+            logger.info("查询成功，父节点有："+parentList);
+            return JsonMessage.success().add("parentList",parentList);
+        }else {
+            return JsonMessage.error("查询失败");
+        }
+    }
 }
 

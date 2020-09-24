@@ -1,6 +1,7 @@
 package com.onlinets.controller;
 
 
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.onlinets.pojo.Homework;
 import com.onlinets.pojo.HomeworkSubmit;
@@ -42,10 +43,10 @@ public class HomeworkSubmitController {
     @Autowired
     private UserInfoService userInfoService;
 
-    @RequestMapping(value = "/submitWork/{workid}/{submitcontent}")
-    public JsonMessage submitWork(@PathVariable("workid") Integer workid
-            , @PathVariable("submitcontent") String submitcontent
+    @RequestMapping(value = "/submitWork/{homeworksub}")
+    public JsonMessage submitWork(@PathVariable("homeworksub") String homeworkSubmit
             , HttpServletRequest request) {
+        HomeworkSubmit hws = JSON.parseObject(homeworkSubmit,HomeworkSubmit.class);
         String header = request.getHeader("Authorization");
         Claims claims = TokenUtil.parseToken(header);
         String id = claims.getId();
@@ -53,14 +54,9 @@ public class HomeworkSubmitController {
         wrapper.eq("idcardno",id);
         UserInfo one = userInfoService.getOne(wrapper);
         if (one!=null&!one.equals("")){
-            HomeworkSubmit submit1 = new HomeworkSubmit();
-            submit1.setWorkid(workid);
-            submit1.setStudentname(one.getName());
-            submit1.setStudentid(one.getIdcardno());
             SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            submit1.setSubmittime(df.format(new Date()));
-            submit1.setSubmitcontent(submitcontent);
-            boolean save = homeworkSubmitService.save(submit1);
+            hws.setSubmittime(df.format(new Date()));
+            boolean save = homeworkSubmitService.save(hws);
             if (save){
                 logger.info("提交成功");
                 String msg = "提交成功";

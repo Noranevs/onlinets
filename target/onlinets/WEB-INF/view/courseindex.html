@@ -99,14 +99,53 @@
 </div>
 
 <script src="../../layui/layui.js"></script>
-<script src="/js/check_token.js"></script>
+<script src="../../js/check_token.js"></script>
 <script src="../../js/jquery-3.4.1.js"></script>
 <script>
   layui.use(['layer', 'jquery','element'], function () {
     var layer = layui.layer;
     var element = layui.element;
     var $ = layui.jquery;
-    var coursename;
+    element.on('nav(demo)', function(elem){
+      //console.log(elem)
+      layer.msg(elem.text());
+    });
+    //触发事件
+    var active = {
+      tabChange: function(){
+        //切换到指定Tab项
+        element.tabChange('demo', '22'); //切换到：用户管理
+      }
+    };
+
+    $('.site-demo-active').on('click', function(){
+      var othis = $(this), type = othis.data('type');
+      active[type] ? active[type].call(this, othis) : '';
+    });
+
+    //Hash地址的定位
+    var layid = location.hash.replace(/^#test=/, '');
+    element.tabChange('test', layid);
+
+    element.on('tab(test)', function(elem){
+      location.hash = 'test='+ $(this).attr('lay-id');
+    });
+    $(function () {
+      var token = getCookies("Authorization");
+      $.ajax({
+        url: '/onlinets/user-info/getUser',
+        type: 'GET',
+        // 允许请求携带cookie
+        xhrFields: {withCredentials: true}, //开启请求头
+        headers: {Authorization: token},
+        success: function (res) {
+          if (res.code === 100) {
+            var user = res.info.one_user; //接收到UserController中getUser方法中的one_user数据
+            $('cite').append(user.name);
+          }
+        }
+      });
+    });
     $(function () {
       var url = location.search;//获取url中"?"符后的字串
       if (url.indexOf("?") != -1) {    //判断是否有参数
@@ -119,22 +158,40 @@
       }
     });
     //监听导航点击
-    element.on('nav(demo)', function(elem){
-      //console.log(elem)
-      layer.msg(elem.text());
-    });
+    var coursename = $("#coursename").val();
+    console.log(coursename);
+
     $(function () {
       var token = getCookies("Authorization");
       $.ajax({
         type: 'GET',
-        url: "/onlinets/course-knowledgepoint/getParent/"+coursename,
+        url: "/onlinets/course-knowledgepoint/getParent",
         dataType: 'json',
         async: false,
         xhrFields: {withCredentials: true}, //开启请求头
         headers: {Authorization: token},
         success: function(result) {
-          var pointList = result.info;
-          console.log(pointList);
+          var parentList = result.info;
+          var course = result.info.coursename;
+          console.log(parentList);
+        },
+        error: function(){
+          return;
+        },
+      });
+    })
+    $(function () {
+      var token = getCookies("Authorization");
+      $.ajax({
+        type: 'GET',
+        url: "/onlinets/course-knowledgepoint/getChild",
+        dataType: 'json',
+        async: false,
+        xhrFields: {withCredentials: true}, //开启请求头
+        headers: {Authorization: token},
+        success: function(result) {
+          var childList = result.info;
+          console.log(childList);
         },
         error: function(){
           return;

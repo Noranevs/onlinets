@@ -4,9 +4,11 @@ package com.onlinets.controller;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.support.config.FastJsonConfig;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.onlinets.pojo.CourseInfo;
 import com.onlinets.pojo.CourseStudent;
 import com.onlinets.pojo.Homework;
 import com.onlinets.pojo.UserInfo;
+import com.onlinets.service.CourseInfoService;
 import com.onlinets.service.CourseStudentService;
 import com.onlinets.service.HomeworkService;
 import com.onlinets.utils.JsonMessage;
@@ -40,20 +42,23 @@ public class HomeworkController {
     @Autowired
     private HomeworkService homeworkService;
 
+    @Autowired
+    private CourseInfoService courseInfoService;
+
     /*
      * 学生查看作业
      * */
     @RequestMapping(value = "/getHomeworks/{coursename}",produces = {"application/json;charset=UTF-8"})
     @ResponseBody
     public JsonMessage getHomeworks(@PathVariable("coursename") String coursename, HttpServletRequest request){
-        QueryWrapper<Homework> wrapper = new QueryWrapper<>();
+        QueryWrapper<CourseInfo> wrapper = new QueryWrapper<>();
         wrapper.eq("coursename",coursename);
-        Homework one = homeworkService.getOne(wrapper);
-        Integer workid = one.getId();
-        logger.info("作业id："+workid);
-        if (workid != null && !workid.equals("")) {
+        CourseInfo one = courseInfoService.getOne(wrapper);
+        Integer classid = one.getId();
+        logger.info("课程id：",classid);
+        if (classid!=null && !classid.equals("")) {
             QueryWrapper<Homework> homeworkQueryWrapper =new QueryWrapper<>();
-            homeworkQueryWrapper.eq("coursename",coursename);
+            homeworkQueryWrapper.eq("courseid",classid);
             List<Homework> homeworkList = homeworkService.list(homeworkQueryWrapper);
             logger.info("我的作业：" + homeworkList.toString());
             if ( homeworkList != null) {
@@ -63,7 +68,6 @@ public class HomeworkController {
                 return JsonMessage.error("查询失败!");
             }
         }else {
-            logger.info("未获取到作业id:"+workid);
             return JsonMessage.error("查询失败");
         }
     }
@@ -71,7 +75,7 @@ public class HomeworkController {
     /*
     * 查看作业详情
     * */
-    @RequestMapping(value = "/getWorkContent/{worktitle}")
+    @RequestMapping(value = "/getWorkContent/{worktitle}",produces = {"application/json;charset=UTF-8"})
     @ResponseBody
     public JsonMessage getWorkContent(@PathVariable("worktitle") String worktitle,HttpServletRequest request){
         QueryWrapper<Homework> wrapper = new QueryWrapper<>();

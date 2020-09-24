@@ -22,7 +22,7 @@
       <!-- 登入后的状态 -->
       <li class="layui-nav-item">
         <a class="fly-nav-avatar" href="javascript:;">
-          <cite class="layui-hide-xs">姚鑫</cite>
+          <cite class="layui-hide-xs"></cite>
           <img src="../../images/head.png">
         </a>
         <dl class="layui-nav-child">
@@ -136,6 +136,22 @@
 
     element.on('tab(test)', function(elem){
       location.hash = 'test='+ $(this).attr('lay-id');
+    });
+    $(function () {
+      var token = getCookies("Authorization");
+      $.ajax({
+        url: '/onlinets/user-info/getUser',
+        type: 'GET',
+        // 允许请求携带cookie
+        xhrFields: {withCredentials: true}, //开启请求头
+        headers: {Authorization: token},
+        success: function (res) {
+          if (res.code === 100) {
+            var user = res.info.one_user; //接收到UserController中getUser方法中的one_user数据
+            $('cite').append(user.name);
+          }
+        }
+      });
     });
     $(function () {
       var token = getCookies("Authorization");

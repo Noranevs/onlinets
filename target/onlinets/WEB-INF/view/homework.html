@@ -60,7 +60,9 @@
         <div>
           <div id="Content" style="height: 1000px">
               <div id="homeworks">
-
+                <input hidden id="userid" value="">
+                <input hidden id="username" value="">
+                <input hidden id="workid" value="">
               </div>
           </div>
         </div>
@@ -77,14 +79,13 @@
 </div>
 
 <script src="../../layui/layui.js"></script>
-<script src="/js/check_token.js"></script>
+<script src="../../js/check_token.js"></script>
 <script src="../../js/jquery-3.4.1.js"></script>
 <script>
   layui.use(['layer','jquery','element'], function(){
     var layer = layui.layer;
     var $ = layui.jquery
             ,element = layui.element;
-    var coursename;
     var workid;
     var userid;
     var username;
@@ -122,6 +123,7 @@
         $("title").append(coursename);
       }
     });
+    var coursename = $("#coursename").val();
     $(function () {
       var token = getCookies("Authorization");
       $.ajax({
@@ -138,7 +140,7 @@
           console.log(homeworkList);
           var str = "";//用来存储html内容
           $.each(homeworkList, function (index,item){
-            workid = item.id;
+            workid = $("#workid").append(item.id);
             var start = item.workstart.year+"-"+item.workstart.monthValue+"-"+item.workstart.dayOfMonth+" "+item.workstart.hour+":"+item.workstart.minute
             var end = item.workend.year+"-"+item.workend.monthValue+"-"+item.workend.dayOfMonth+" "+item.workend.hour+":"+item.workend.minute
             str += "<div style=\"width:240px;height:160px;background: #f2f2f2;border: #dbdbdb solid 1px;float: left;margin-right: 15px\">\n" +
@@ -158,9 +160,9 @@
         error: function(){
           return;
         },
-
       });
     })
+    workid = $("#workid").val();
     $(function () {
       var token = getCookies("Authorization");
       $.ajax({
@@ -174,10 +176,14 @@
             var user = res.info.one_user; //接收到UserController中getUser方法中的one_user数据
             userid = user.idcardno;
             username = user.name;
+            $("#userid").append(userid);
+            $("#username").append(username);
           }
         }
       });
     });
+    userid = $("#userid").val();
+    username= $("#username").val();
     console.log(userid);
     console.log(username);
     console.log(workid);

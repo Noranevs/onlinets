@@ -42,7 +42,7 @@
     <div class="fly-panel fly-column">
         <div class="layui-container">
             <ul class="layui-clear">
-                <li class="layui-hide-xs"><a href="/to/courseindex">首页</a></li>
+                <li class="layui-hide-xs"><a href="/to/index">首页</a></li>
                 <li class="layui-hide-xs"><a href="/">课件</a></li>
                 <li class="layui-hide-xs"><a href="/">资料</a></li>
                 <li class="layui-this"><a href="/to/homework">作业</a></li>
@@ -63,15 +63,20 @@
         </div>
         <div>
             <div id="Content" style="height: 1000px">
-                <div id="workdecs">
-                    <p style="font-size: 18px;font-weight: 400">要求：</p>
-                    <p style="font-size: 14px;font-weight: 400;margin-left: 10px;margin-top: 10px" id="workcontent"></p>
-                </div>
-                <div id="txtcontent" style="margin-top: 30px">
-                    <p style="font-size: 14px">填写答案：</p>
-                    <textarea id="demo" style="display: none;"></textarea>
-                    <button type="button" class="layui-btn layui-btn-lg" style="display: block;margin: 0 auto;margin-top: 40px">提交作业</button>
-                </div>
+                <form id="postWork" action="">
+                    <input hidden value="" id="userid">
+                    <input hidden value="" id="username">
+                    <input hidden value="" id="workid">
+                    <div id="workdecs">
+                        <p style="font-size: 18px;font-weight: 400">要求：</p>
+                        <p style="font-size: 14px;font-weight: 400;margin-left: 10px;margin-top: 10px" id="workcontent"></p>
+                    </div>
+                    <div id="txtcontent" style="margin-top: 30px">
+                        <p style="font-size: 14px">填写答案：</p>
+                        <textarea id="contenttxt" style="display: none;"></textarea>
+                        <button lay-submit lay-filter="sub" class="layui-btn layui-btn-lg" style="display: block;margin: 0 auto;margin-top: 40px">提交作业</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -87,15 +92,22 @@
 </div>
 
 <script src="../../layui/layui.js"></script>
-<script src="/js/check_token.js"></script>
+<script src="../../js/check_token.js"></script>
 <script src="../../js/jquery-3.4.1.js"></script>
 <script>
-    layui.use(['layer','jquery','element','layedit'], function(){
+    layui.use(['layer','jquery','element','layedit','form'], function(){
         var layer = layui.layer;
         var $ = layui.jquery
             ,element = layui.element
-            ,layedit = layui.layedit ; //Tab的切换功能，切换事件监听等，需要依赖element模块
+            ,layedit = layui.layedit
+            ,form = layui.form
+            ,index = layedit.build('contenttxt');; //Tab的切换功能，切换事件监听等，需要依赖element模块
         //右上角鼠标移入展开菜单
+        var workid;
+        var submitcontent;
+        var studentid;
+        var studentname;
+        var coursename;
         element.on('nav(demo)', function(elem){
             //console.log(elem)
             layer.msg(elem.text());
@@ -120,7 +132,7 @@
         element.on('tab(test)', function(elem){
             location.hash = 'test='+ $(this).attr('lay-id');
         });
-        var coursename;
+        //获取url中的值
         $(function () {
             var url = location.search;//获取url中"?"符后的字串
             if (url.indexOf("?") != -1) {    //判断是否有参数
@@ -130,10 +142,34 @@
                 $("title").append(worktitle);
             }
         });
+        //获取用户信息
         $(function () {
             var token = getCookies("Authorization");
             $.ajax({
+                url: '/onlinets/user-info/getUser',
                 type: 'GET',
+                // 允许请求携带cookie
+                xhrFields: {withCredentials: true}, //开启请求头
+                headers: {Authorization: token},
+                success: function (res) {
+                    if (res.code === 100) {
+                        var user = res.info.one_user; //接收到UserController中getUser方法中的one_user数据
+                        studentid = user.idcardno;
+                        studentname = user.name;
+                        $('cite').append(studentname);
+                        $("#userid").append(studentid);
+                        $("#username").append(studentname);
+                    }
+                }
+            });
+        });
+        studentid = $("#userid").val();
+        studentname = $("#username").val();
+        //查询作业详情
+        $(function () {
+            var token = getCookies("Authorization");
+            $.ajax({
+                type: 'POST',
                 url: "/onlinets/homework/getWorkContent/"+worktitle,
                 dataType: 'json',
                 async: false,
@@ -143,6 +179,9 @@
                     console.log(result);
                     if (result.code === 100) {
                         var work = result.info.workContent;
+                        $("#workid").append(work.workid);
+                        submitcontent = work.submitcontent;
+                        coursename = work.coursename;
                         $('#worktitle').append(work.worktitle);
                         $('#teachername').append(work.teachername);
                         $('#workcontent').append(work.workcontent);
@@ -154,10 +193,50 @@
                 error: function(){
                     return;
                 },
-
             });
+            workid = $("#workid").val();
         })
-        layedit.build('demo');
+        console.log(submitcontent);
+        //提交作业
+        form.verify({
+            content: function(value) {
+                return layedit.sync(index);
+            }
+        }).on('submit(sub)', function () {
+            var homeworksub = new Object();
+            var token = getCookies("Authorization");
+            console.log(token);
+            homeworksub.workid = workid;
+            homeworksub.studentid =  studentid;
+            homeworksub.studentname = studentname;
+            homeworksub.submitcontent = $("#contenttxt").val();
+            layedit.sync(index);
+            let s = JSON.stringify(homeworksub);
+            console.log(s);
+            $.ajax({
+                url: '/onlinets/homework-submit/submitWork/' +s,
+                type: 'post',
+                dataType:'json',
+                xhrFields: {withCredentials: true},
+                headers: {Authorization: token},
+                success: function (res) {
+                    console.log(res);
+                    if (res.code === 100) {
+                        console.log(res);
+                        document.cookie="Authorization" + "=" +res.info.token;
+                        layer.msg("发表成功！", {
+                            time: 1000,
+                            end: function(){
+                                window.location.href = "/to/courseindex?"+coursename;
+                            }
+                        });
+                    } else {
+                        layer.msg(res.msg);
+                    }
+                }
+            });
+            return false;
+        });
     });
 </script>
 

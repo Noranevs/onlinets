@@ -10,6 +10,8 @@ import com.onlinets.service.CourseInfoService;
 import com.onlinets.service.CourseKnowledgepointService;
 import com.onlinets.service.UserInfoService;
 import com.onlinets.utils.JsonMessage;
+import com.onlinets.utils.TokenUtil;
+import io.jsonwebtoken.Claims;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,18 +47,30 @@ public class CourseKnowledgepointController {
     /*
      * 通过课程id查询知识点的父节点
      * */
-    @RequestMapping(value = "/getParent/{courseid}")
+    @RequestMapping(value = "/getParent/{coursename}",produces = {"application/json;charset=UTF-8"})
     @ResponseBody
-    public JsonMessage getParent(@PathVariable("courseid") String courseid, HttpServletRequest request){
+    public JsonMessage getParent(@PathVariable("coursename") String coursename,HttpServletRequest request){
         QueryWrapper<CourseKnowledgepoint> wrapper = new QueryWrapper<>();
-        wrapper.eq("courseid",courseid);
+        wrapper.eq("coursename",coursename);
         CourseKnowledgepoint ckp = courseKnowledgepointService.getOne(wrapper);
-        Integer parentid = ckp.getParentid();
-        if (parentid==0){
-            return JsonMessage.success();
+        Integer classid = ckp.getCourseid();
+        logger.info("课程ID："+classid);
+        if (classid != null && !classid.equals("")) {
+            QueryWrapper<CourseKnowledgepoint> ckpQueryWrapper = new QueryWrapper<>();
+            wrapper.eq("parentid",0);
+            List<CourseKnowledgepoint> parentList = courseKnowledgepointService.list(ckpQueryWrapper);
+            if (parentList!=null){
+                logger.info("查询成功，父节点有："+parentList);
+                return JsonMessage.success().add("pointList",parentList);
+            }else {
+                return JsonMessage.error("查询失败");
+            }
         }else {
-            return JsonMessage.error("");
+            logger.info("未获取课程id："+classid);
+            return JsonMessage.error("查询失败");
         }
     }
+
+
 }
 

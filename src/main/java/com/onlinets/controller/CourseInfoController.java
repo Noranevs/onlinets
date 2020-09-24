@@ -45,11 +45,11 @@ public class CourseInfoController {
     /*
     * 通过课程id查询课程详情
     * */
-    @RequestMapping(value = "/getCoursesInfo/{courseid}")
+    @RequestMapping(value = "/getCoursesInfo/{coursename}")
     @ResponseBody
-    public JsonMessage getCoursesInfo(@PathVariable("courseid") String courseid, HttpServletRequest request){
+    public JsonMessage getCoursesInfo(@PathVariable("coursename") String coursename, HttpServletRequest request){
         QueryWrapper<CourseInfo> wrapper = new QueryWrapper<>();
-        wrapper.eq("id",courseid);
+        wrapper.eq("coursename",coursename);
         CourseInfo one = service.getOne(wrapper);
         if (one!=null) {
             logger.info("查到的课程详情："+one);

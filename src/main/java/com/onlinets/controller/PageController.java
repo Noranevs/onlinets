@@ -30,5 +30,10 @@ public class PageController {
     public String tohomework(){
         return "homework";
     }
+
+    @RequestMapping(value = "/content")
+    public String tocontent(){
+        return "content";
+    }
 }
 
